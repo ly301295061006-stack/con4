@@ -1,0 +1,77 @@
+<div style="text-align:center; position:relative; height:500px; font-family:Arial,sans-serif;">
+  <h2>Trạm 3: Ném còn</h2>
+  <p>Click vào con còn để ném vào rổ!</p>
+
+  <!-- Rổ -->
+  <div id="basket" style="position:absolute; top:50px; left:50%; transform:translateX(-50%); width:100px; height:100px; border:5px solid #8B4513; border-radius:50%;"></div>
+
+  <!-- Con còn -->
+  <img id="stick" src="https://upload.wikimedia.org/wikipedia/commons/5/56/Vietnamese_new_year_game_%28NEM_CON%29.jpg"
+       width="50" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); cursor:pointer; transition: all 1s ease;">
+
+  <div id="result" style="margin-top:520px; font-weight:bold; font-size:18px; color:#c44536;"></div>
+
+  <!-- Canvas pháo hoa -->
+  <canvas id="fireworks" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></canvas>
+</div>
+
+<script>
+const stick = document.getElementById('stick');
+const basket = document.getElementById('basket');
+const resultDiv = document.getElementById('result');
+const canvas = document.getElementById('fireworks');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+stick.addEventListener('click', () => {
+  stick.style.transition = 'all 1s ease';
+  stick.style.transform = `translate(-50%, -200px)`; // ném lên
+
+  setTimeout(() => {
+    // random rớt vào rổ hay không
+    const basketRect = basket.getBoundingClientRect();
+    const hit = Math.random() > 0.5; // 50% khả năng trúng
+
+    stick.style.transform = 'translate(-50%, 0px)';
+
+    if(hit){
+      resultDiv.innerHTML = "🎉 Trúng rổ! Điểm cao + pháo hoa! 🎉";
+      launchFireworks();
+    } else {
+      resultDiv.innerHTML = "Ôi trượt rổ, thử lại nhé!";
+    }
+  }, 1000);
+});
+
+function launchFireworks(){
+  const particles = [];
+  for(let i=0;i<100;i++){
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height/2,
+      r: Math.random()*3+2,
+      dx: (Math.random()-0.5)*6,
+      dy: (Math.random()-0.5)*6,
+      color: `hsl(${Math.random()*360}, 100%, 50%)`
+    });
+  }
+  let count = 0;
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(const p of particles){
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+      p.dy += 0.05;
+    }
+    count++;
+    if(count<60) requestAnimationFrame(animate);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  animate();
+}
+</script>
